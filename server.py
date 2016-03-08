@@ -7,7 +7,7 @@ def server():
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP,)
         print("\nserver: ", server_socket)
 
-        address = ('127.0.0.1', 5001)
+        address = ('127.0.0.1', 5000)
         server_socket.bind(address)
         print("\nserver: ", server_socket)
 
