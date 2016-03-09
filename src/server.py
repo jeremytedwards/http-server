@@ -1,14 +1,25 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from collections import OrderedDict
+
 import socket
+import email.utils
 
 
 def response_ok():
-    return "HTTP/1.1 200 OK"
+    return ["HTTP/1.1 200 OK",
+            str("Date: " + email.utils.formatdate(usegmt=True)),
+            "Content-type: text/plain; charset=utf-8",
+            "Content-length: \n",
+            "Body: "]
 
 
-def response_error():
-    return "HTTP/1.1 500 Internal Server Error"
+
+# def response_error():
+#     return "HTTP/1.1 500 Internal Server Error" \
+#            "Date: Wed, 30 Jul 2014 15:11:42 GMT" \
+#            "Content-type: application/soap+xml; charset=utf-8" \
+#            "Content-length:" \
 
 
 def server():
@@ -27,14 +38,23 @@ def server():
             conn, addr = server_socket.accept()
 
             # Receive the buffered message
-            buffered_message = ""
+            buffered_message_dict = response_ok()
             buffer_length = 8
             while True:
                 part = conn.recv(buffer_length)
-                buffered_message += part.decode('utf-8')
+                buffered_message_dict[4] += part.decode('utf-8')
+
                 if len(part) < buffer_length:
-                    conn.sendall(buffered_message.encode('utf-8'))
-                    print(buffered_message)
+                    # add length
+                    # response.update(str(len(buffered_message.encode('utf-8') + "\n")))
+
+                    # loop through and send each item
+                    # conn.sendall(buffered_message_dict.encode('utf-8'))
+                    # for i in buffered_message_dict:
+                    #     conn.send(i)
+
+                    for c in buffered_message_dict:
+                        print(c)
                     break
             conn.close()
 
