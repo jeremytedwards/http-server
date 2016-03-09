@@ -38,22 +38,22 @@ def server():
             conn, addr = server_socket.accept()
 
             # Receive the buffered message
-            buffered_message_dict = response_ok()
+            msg_response = response_ok()
             buffer_length = 8
             while True:
                 part = conn.recv(buffer_length)
-                buffered_message_dict[4] += part.decode('utf-8')
+                msg_response[4] += part.decode('utf-8')
 
                 if len(part) < buffer_length:
-                    # add length
-                    # response.update(str(len(buffered_message.encode('utf-8') + "\n")))
+                    # Get length
+                    msg_response[3] = "Content-length: " + str(len(msg_response[4])) + "\n"
 
                     # loop through and send each item
                     # conn.sendall(buffered_message_dict.encode('utf-8'))
                     # for i in buffered_message_dict:
                     #     conn.send(i)
 
-                    for c in buffered_message_dict:
+                    for c in msg_response:
                         print(c)
                     break
             conn.close()

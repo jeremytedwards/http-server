@@ -30,4 +30,4 @@ def client(message=test_message):
 
 
 if __name__ == '__main__':
-    client(test_message)
+    client(sys.argv[1])
