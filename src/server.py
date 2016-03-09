@@ -4,22 +4,22 @@ from collections import OrderedDict
 
 import socket
 import email.utils
+import sys
 
 
 def response_ok():
     return ["HTTP/1.1 200 OK",
             str("Date: " + email.utils.formatdate(usegmt=True)),
-            "Content-type: text/plain; charset=utf-8",
+            "Content-type: text/html; charset=utf-8",
             "Content-length: \n",
             "Body: "]
 
 
-
-# def response_error():
-#     return "HTTP/1.1 500 Internal Server Error" \
-#            "Date: Wed, 30 Jul 2014 15:11:42 GMT" \
-#            "Content-type: application/soap+xml; charset=utf-8" \
-#            "Content-length:" \
+def response_error():
+    return ["HTTP/1.1 500 Internal Server Error",
+            str("Date: " + email.utils.formatdate(usegmt=True)),
+            "Content-type: text/html; charset=utf-8"
+            ]
 
 
 def server():
@@ -27,7 +27,7 @@ def server():
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP,)
         print("\nserver: ", server_socket)
 
-        address = ('127.0.0.1', 5001)
+        address = ('127.0.0.1', 5000)
         server_socket.bind(address)
         print("\nserver: ", server_socket)
 
@@ -47,14 +47,9 @@ def server():
                 if len(part) < buffer_length:
                     # Get length
                     msg_response[3] = "Content-length: " + str(len(msg_response[4])) + "\n"
-
-                    # loop through and send each item
-                    # conn.sendall(buffered_message_dict.encode('utf-8'))
-                    # for i in buffered_message_dict:
-                    #     conn.send(i)
-
+                    sys.stdout.write(msg_response[4])
                     for c in msg_response:
-                        print(c)
+                        conn.send(c.encode('utf-8'))
                     break
             conn.close()
 
@@ -64,6 +59,8 @@ def server():
         server.close()
         print('server closed')
 
-server()
+
+if __name__ == '__main__':
+    server()
 
 # TODO: When the Client hits Ctrl+D then the connection closes
