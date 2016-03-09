@@ -8,17 +8,17 @@ import sys
 
 
 def response_ok():
-    return ["HTTP/1.1 200 OK",
-            str("Date: " + email.utils.formatdate(usegmt=True)),
-            "Content-type: text/html; charset=utf-8",
-            "Content-length: \n",
+    return ["HTTP/1.1 200 OK\n",
+            str("Date: " + email.utils.formatdate(usegmt=True) + "\n"),
+            "Content-type: text/html; charset=utf-8\n",
+            "Content-length: \n\n",
             "Body: "]
 
 
 def response_error():
-    return ["HTTP/1.1 500 Internal Server Error",
-            str("Date: " + email.utils.formatdate(usegmt=True)),
-            "Content-type: text/html; charset=utf-8"
+    return ["HTTP/1.1 500 Internal Server Error\n",
+            str("Date: " + email.utils.formatdate(usegmt=True) + "\n"),
+            "Content-type: text/html; charset=utf-8\n"
             ]
 
 
@@ -46,7 +46,7 @@ def server():
 
                 if len(part) < buffer_length:
                     # Get length
-                    msg_response[3] = "Content-length: " + str(len(msg_response[4])) + "\n"
+                    msg_response[3] = "Content-length: " + str(len(msg_response[4])) + "\n\n"
                     sys.stdout.write(msg_response[4])
                     for c in msg_response:
                         conn.send(c.encode('utf-8'))

@@ -11,12 +11,12 @@ MSG_TABLE = [
 
 
 # the server must be running for this test
-# @pytest.mark.parametrize('test_string, response', MSG_TABLE)
-# def test_client_shorter_than_buffer(test_string, response, capfd):
-#     from client import client
-#     client(test_string)
-#     out, err = capfd.readouterr()
-#     assert out == response
+@pytest.mark.parametrize('test_string, response', MSG_TABLE)
+def test_client_shorter_than_buffer(test_string, response, capfd):
+    from client import client
+    client(test_string)
+    out, err = capfd.readouterr()
+    assert out == response
 
 
 # the server must not be running for this test
