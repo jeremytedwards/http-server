@@ -4,6 +4,7 @@ import pytest
 
 # the server must not be running for this test
 
+
 def test_response_template():
     pass
 
