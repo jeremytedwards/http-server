@@ -26,7 +26,7 @@ def client(message=test_message):
             break
     print(buffered_message)
     client_socket.close()
-    return(buffered_message)
+    return buffered_message
 
 
 if __name__ == '__main__':
