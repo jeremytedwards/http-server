@@ -27,15 +27,23 @@ def test_response_check(error, response):
     assert response_check(error) == response
 
 
-CLIENT_MESSAGES = [
-    (u"GET / HTTP/1.1\r\nHost: localhost:5000", "/"),
-    (u"SET / HTTP/1.1\r\nHost: localhost:5000", "405"),
-    (u"GET / HTTP/1.0\r\nHost: localhost:5000", "505"),
-    (u"GET / HTTP/1.1\r\nNo Host", "404")
+FAILED_MESSAGES = [
+    (u"SET / HTTP/1.1\r\nHost: localhost:5000", NameError),
+    (u"GET / HTTP/1.0\r\nHost: localhost:5000", TypeError),
+    (u"GET / HTTP/1.1\r\nNo Host", ValueError)
 ]
 
+SUCCESS_MESSAGE = [(u"GET / HTTP/1.1\r\nHost: localhost:5000", "/")]
 
-@pytest.mark.parametrize("error, response", CLIENT_MESSAGES)
-def test_parse_request(error, response):
+
+@pytest.mark.parametrize("error, response", FAILED_MESSAGES)
+def test_parse_request_failed(error, response):
+    from server import parse_request
+    with pytest.raises(response):
+        assert parse_request(error) == response
+
+
+@pytest.mark.parametrize("error, response", SUCCESS_MESSAGE)
+def test_parse_request_success(error, response):
     from server import parse_request
     assert parse_request(error) == response

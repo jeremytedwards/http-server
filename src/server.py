@@ -80,22 +80,18 @@ def server():
                 if len(part) < buffer_length:
                     try:
                         filepath = parse_request(byte_msg.decode('utf-8'))
+                        if "/" in filepath:
+                            msg_response[0] = response_check("200")
+                            msg_response[3] = "Content-length: " + str(len(msg_response[4])) + "\r\n\r\n"
+                            msg_response[4] = filepath
+                            sys.stdout.write(msg_response[4])
                     except NameError:
-                        pass
+                        msg_response[0] = response_check('505')
                     except TypeError:
-                        pass
+                        msg_response[0] = response_check('405')
                     except ValueError:
-                        pass
-                    print("filepath: ", filepath)
-
-                    if "/" in filepath:
-                        msg_response[0] = response_check("200")
-                        msg_response[3] = "Content-length: " + str(len(msg_response[4])) + "\r\n\r\n"
-                        msg_response[4] = filepath
-                        sys.stdout.write(msg_response[4])
-
-                    else:
-                        msg_response[0] = response_check(filepath)
+                        msg_response[0] = response_check('404')
+                    finally:
                         msg_response[3] = "Content-length: " + str(len(msg_response[4])) + "\r\n\r\n"
 
                     # Send the message
