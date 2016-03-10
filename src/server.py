@@ -7,19 +7,25 @@ import email.utils
 import sys
 
 
-def response_ok():
-    return [u"HTTP/1.1 200 OK\r\n",
+def response_template():
+    return [u"",
             u"" + str("Date: " + email.utils.formatdate(usegmt=True) + "\r\n"),
             u"Content-type: text/html; charset=utf-8\r\n",
             u"Content-length: \r\n\r\n",
             b"Body: "]
 
+# def dresponse_ok():
 
-def response_error():
-    return [u"HTTP/1.1 500 Internal Server Error\r\n",
-            u"" + str("Date: " + email.utils.formatdate(usegmt=True) + "\r\n"),
-            u"Content-type: text/html; charset=utf-8\r\n"
-            ]
+def response_check(error):
+    respone_dict = {
+        "200": u"HTTP/1.1 200 OK\r\n",
+        "400": u"HTTP/1.1 400 Bad Request\r\n",
+        "404": u"HTTP/1.1 404 File Not Found\r\n",
+        "405": u"HTTP/1.1 405 Method Not Allowed\r\n",
+        "500": u"HTTP/1.1 500 Internal Server Error\r\n",
+        "505": u"HTTP/1.1 505 HTTP Version Not Supported\r\n",
+    }
+    return respone_dict[error]
 
 
 # GET / HTTP/1.1
@@ -41,11 +47,11 @@ def parse_request(request):
             if 'Host: localhost:' in split_request[1]:
                 return request_list[1]
             else:
-                pass # python error host
+                return "404"
         else:
-            pass # python error http version
+            return "505"
     else:
-        pass # python error method
+        return "405"
 
 
 def server():
@@ -63,7 +69,7 @@ def server():
             conn, addr = server_socket.accept()
 
             # Receive the buffered message
-            msg_response = response_ok()
+            msg_response = response_template()
             buffer_length = 4096
             byte_msg = b''
             while True:
