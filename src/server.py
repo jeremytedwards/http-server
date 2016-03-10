@@ -34,7 +34,8 @@ def response_check(error):
 # Cache-Control: max-age=0
 # Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
 # Upgrade-Insecure-Requests: 1
-# User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36
+# User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko)
+#             Chrome/48.0.2564.116 Safari/537.36
 # Accept-Encoding: gzip, deflate, sdch
 # Accept-Language: en-US,en;q=0.8
 def parse_request(request):
