@@ -45,11 +45,11 @@ def parse_request(request):
             if 'Host: localhost:' in split_request[1]:
                 return request_list[1]
             else:
-                return "404"
+                raise ValueError
         else:
-            return "505"
+            raise TypeError
     else:
-        return "405"
+        raise NameError
 
 
 def server():
@@ -80,7 +80,11 @@ def server():
                 if len(part) < buffer_length:
                     try:
                         filepath = parse_request(byte_msg.decode('utf-8'))
-                    except IndexError:
+                    except NameError:
+                        pass
+                    except TypeError:
+                        pass
+                    except ValueError:
                         pass
                     print("filepath: ", filepath)
 
