@@ -14,7 +14,6 @@ def response_template():
             u"Content-length: \r\n\r\n",
             b"Body: "]
 
-# def dresponse_ok():
 
 def response_check(error):
     respone_dict = {
@@ -28,6 +27,7 @@ def response_check(error):
     return respone_dict[error]
 
 
+# >>>>>Sample Request for Reference
 # GET / HTTP/1.1
 # Host: localhost:5001
 # Connection: keep-alive
@@ -37,8 +37,6 @@ def response_check(error):
 # User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36
 # Accept-Encoding: gzip, deflate, sdch
 # Accept-Language: en-US,en;q=0.8
-
-
 def parse_request(request):
     split_request = request.split('\r\n')
     request_list = split_request[0].split(' ')
@@ -64,6 +62,9 @@ def server():
 
     server_socket.listen(1)
     print("\nlistening...")
+
+    conn = None
+
     try:
         while True:
             conn, addr = server_socket.accept()
@@ -77,18 +78,30 @@ def server():
                 byte_msg += part
 
                 if len(part) < buffer_length:
-                    # Get length
-                    print('++++', parse_request(byte_msg.decode('utf-8')))
-                    msg_response[4] = byte_msg.decode('utf-8')
-                    msg_response[3] = "Content-length: " + str(len(msg_response[4])) + "\r\n\r\n"
-                    sys.stdout.write(msg_response[4])
+                    filepath = parse_request(byte_msg.decode('utf-8'))
+                    print("filepath: ", filepath)
+
+                    if "/" in filepath:
+                        msg_response[0] = response_check("200")
+                        msg_response[3] = "Content-length: " + str(len(msg_response[4])) + "\r\n\r\n"
+                        msg_response[4] = filepath
+                        sys.stdout.write(msg_response[4])
+
+                    else:
+                        msg_response[0] = response_check(filepath)
+                        msg_response[3] = "Content-length: " + str(len(msg_response[4])) + "\r\n\r\n"
+
+                    # Send the message
                     for c in msg_response:
                         conn.send(c.encode('utf-8'))
+
+                    # Stop listening
                     break
             conn.close()
 
     except KeyboardInterrupt:
-        conn.close()
+        if conn is not None:
+            conn.close()
         print('connection closed')
     finally:
         server_socket.close()
