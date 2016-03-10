@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from builtins import str
 
 import socket
 import email.utils
@@ -79,7 +78,10 @@ def server():
                 byte_msg += part
 
                 if len(part) < buffer_length:
-                    filepath = parse_request(byte_msg.decode('utf-8'))
+                    try:
+                        filepath = parse_request(byte_msg.decode('utf-8'))
+                    except IndexError:
+                        pass
                     print("filepath: ", filepath)
 
                     if "/" in filepath:

@@ -1,10 +1,20 @@
 # -*- coding: utf-8 -*-
 
+import pytest
 # the server must be running for this test
 
 
-def test_client_shorter_than_buffer(capfd):
+CLIENT_MESSAGES = [
+(u'GET / HTTP/1.1\r\nHost: localhost:5000\r\n', u'test string'),
+(u'SET / HTTP/1.1\r\nHost: localhost:5000\r\n', u''),
+(u'DELETE / HTTP/1.1\r\nHost: localhost:5000\r\n', u''),
+(u'UPDATE / HTTP/1.1\r\nHost: localhost:5000\r\n', u'')
+]
+
+
+@pytest.mark.parametrize('request , response', CLIENT_MESSAGES)
+def test_client_request(capfd, request, response):
     from client import client
-    client("test_string")
+    client(request)
     out, err = capfd.readouterr()
-    assert "HTTP/1.1 200 OK\r\n" in out
+    assert response == out

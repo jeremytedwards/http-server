@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
-
+from __future__ import unicode_literals
 import pytest
 
 # the server must not be running for this test
 
 
 def test_response_template():
-    pass
+    from server import response_template
+    response = response_template()
+    assert 'Content-length: \r\n\r\n' in response
 
 
 ERROR_RESPONSE = [
@@ -23,3 +25,17 @@ ERROR_RESPONSE = [
 def test_response_check(error, response):
     from server import response_check
     assert response_check(error) == response
+
+
+CLIENT_MESSAGES = [
+    (u"GET / HTTP/1.1\r\nHost: localhost:5000", "/"),
+    (u"SET / HTTP/1.1\r\nHost: localhost:5000", "405"),
+    (u"GET / HTTP/1.0\r\nHost: localhost:5000", "505"),
+    (u"GET / HTTP/1.1\r\nNo Host", "404")
+]
+
+
+@pytest.mark.parametrize("error, response", CLIENT_MESSAGES)
+def test_parse_request(error, response):
+    from server import parse_request
+    assert parse_request(error) == response
