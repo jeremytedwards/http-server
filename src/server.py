@@ -16,7 +16,7 @@ def response_template():
 
 
 def response_check(error):
-    respone_dict = {
+    response_dict = {
         "200": u"HTTP/1.1 200 OK\r\n",
         "400": u"HTTP/1.1 400 Bad Request\r\n",
         "404": u"HTTP/1.1 404 File Not Found\r\n",
@@ -24,7 +24,7 @@ def response_check(error):
         "500": u"HTTP/1.1 500 Internal Server Error\r\n",
         "505": u"HTTP/1.1 505 HTTP Version Not Supported\r\n",
     }
-    return respone_dict[error]
+    return response_dict[error]
 
 
 # >>>>>Sample Request for Reference
