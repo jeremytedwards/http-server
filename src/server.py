@@ -64,11 +64,25 @@ def response_ok(body, type):
 
 
 def resolve_uri(uri):
-    # returns a body and type based on uri as a tuple
-    mimetypes.guess_type(ur)
-    # if dir, return a simple HTML listing of that directory as the body
-    # If the resource identified by the URI is a file, return the contents of the file as the body
+    """
+    returns a body and type based on uri as a tuple
+    """
+    os.chdir("../webroot")
+    body = os.open()
+    file_type = None
+    try:
+        filepath = os.open(uri)
+        body = filepath.read()
+        file_type = mimetypes.guess_type(uri)
+    except IOError:
+        raise
+    return body, file_type
+
+
     # If the requested resource cannot be found, raise an appropriate error
+
+
+    return (body, file_type)
 
 
 def send_response(conn, response):
