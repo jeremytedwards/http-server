@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from fs.osfs import OSFS
 
 import socket
 import email.utils
-import sys
+import mimetypes
+import os
 
 
 def response_template():
@@ -27,23 +27,6 @@ def response_check(error):
     return response_dict[error]
 
 
-def resolve_uri(uri):
-    # returns a body and type based on uri as a tuple
-    # if dir, return a simple HTML listing of that directory as the body
-    # If the resource identified by the URI is a file, return the contents of the file as the body
-    # If the requested resource cannot be found, raise an appropriate error
-
-# >>>>>Sample Request for Reference
-# GET / HTTP/1.1
-# Host: localhost:5001
-# Connection: keep-alive
-# Cache-Control: max-age=0
-# Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
-# Upgrade-Insecure-Requests: 1
-# User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko)
-#             Chrome/48.0.2564.116 Safari/537.36
-# Accept-Encoding: gzip, deflate, sdch
-# Accept-Language: en-US,en;q=0.8
 def parse_request(request):
     split_request = request.split('\r\n')
     request_list = split_request[0].split(' ')
@@ -57,6 +40,42 @@ def parse_request(request):
             raise TypeError
     else:
         raise NameError
+
+
+def handle_listening(conn):
+    buffer_length = 4096
+    byte_msg = b''
+
+    while True:
+        part = conn.recv(buffer_length)
+        byte_msg += part
+        if len(part) < buffer_length:
+            break
+
+    return byte_msg
+
+
+def response_ok(body, type):
+    response = response_template()
+    response[0] = response_check("200")
+    response[2] = u"Content-type: " + type + "; charset=utf-8\r\n"
+    response[4] = body
+    return response
+
+
+def resolve_uri(uri):
+    # returns a body and type based on uri as a tuple
+    mimetypes.guess_type(ur)
+    # if dir, return a simple HTML listing of that directory as the body
+    # If the resource identified by the URI is a file, return the contents of the file as the body
+    # If the requested resource cannot be found, raise an appropriate error
+
+
+def send_response(conn, response):
+    for c in response:
+        conn.send(c.encode('utf-8'))
+
+
 
 
 def server():
@@ -76,46 +95,29 @@ def server():
         while True:
             conn, addr = server_socket.accept()
 
-            # Receive the buffered message
-            msg_response = response_template()
-            buffer_length = 4096
-            byte_msg = b''
             while True:
-                part = conn.recv(buffer_length)
-                byte_msg += part
+                # listen on socket
+                client_request = handle_listening(conn)
 
-                if len(part) < buffer_length:
-                    try:
-                        filepath = parse_request(byte_msg.decode('utf-8'))
-                        if "/" in filepath:
-                            msg_response[0] = response_check("200")
-                            msg_response[3] = "Content-length: " + str(len(msg_response[4])) + "\r\n\r\n"
-                            msg_response[4] = filepath
-                            sys.stdout.write(msg_response[4])
-                    except NameError:
-                        msg_response[0] = response_check('505')
-                    except TypeError:
-                        msg_response[0] = response_check('405')
-                    except ValueError:
-                        msg_response[0] = response_check('404')
-                    finally:
-                        msg_response[3] = "Content-length: " + str(len(msg_response[4])) + "\r\n\r\n"
+                uri = parse_request(client_request)
 
-                    # Send the message
-                    for c in msg_response:
-                        conn.send(c.encode('utf-8'))
+                body, type = resolve_uri(uri)
 
-                    # Stop listening
-                    break
+                client_response = build_the_message(body, type)
+
+                # Send the message
+                send_response(conn, client_response)
+
+                # Stop listening
+                break
             conn.close()
-
-    except KeyboardInterrupt:
-        if conn is not None:
-            conn.close()
-        print('connection closed')
-    finally:
-        server_socket.close()
-        print('server closed')
+        except KeyboardInterrupt:
+            if conn is not None:
+                conn.close()
+            print('connection closed')
+        finally:
+            server_socket.close()
+            print('server closed')
 
 
 if __name__ == '__main__':
