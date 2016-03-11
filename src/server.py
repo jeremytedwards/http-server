@@ -7,6 +7,22 @@ import mimetypes
 import io
 import os
 
+sample_template = (
+    "<!DOCTYPE html>"
+    "<html>"
+    "<body>"
+    "<h1>Code Fellows</h1>"
+    "{body}"
+    "</body>"
+    "</html>"
+)
+def build_file_structre_html(src):
+    return_value = sample_template
+    for item in os.listdir(src):
+        body = "<a href={item}/>{item}</a><br />".format(item)
+    print(return_value.format(body))
+    return return_value.format(body)
+
 
 def response_template():
     return [u"",
@@ -69,17 +85,22 @@ def resolve_uri(uri):
     """
     os.chdir("webroot")
     path_to_root = os.path.join(os.getcwd(), uri)
-    # path_to_root = str('webroot' + uri)
-    # body = os.open()
-    file_type = None
+    print("path to root: ", path_to_root)
+    file_type = ""
     try:
-        if os.path.isfile(uri):
+        if os.path.isfile(path_to_root):
+            print("is a file")
             filepath = io.open(path_to_root, 'rb')
+            print("filepath :", filepath)
             body = filepath.read()
+            print("body", body)
             file_type = mimetypes.guess_type(uri)
-            return (body, file_type)
+            print("file_type :", file_type)
+            return body, file_type
         elif os.path.isdir(uri):
-            pass
+            print("is a directory")
+            # return build_file_structre_html(uri), file_type
+            return sample_template, file_type
             # show file system
     except OSError:
         pass
@@ -95,7 +116,7 @@ def server():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP,)
     print("\nserver: ", server_socket)
 
-    address = ('127.0.0.1', 5000)
+    address = ('127.0.0.1', 5001)
     server_socket.bind(address)
     print("\nserver: ", server_socket)
 
@@ -112,11 +133,11 @@ def server():
                     # listen on socket
                     client_request = handle_listening(conn)
                     if client_request:
-
+                        # TODO: uri could be an error handle it.
                         uri = parse_request(client_request)
-
                         body, file_type = resolve_uri(uri)
-
+                        print("body :", body)
+                        print("file_type :", file_type)
                         client_response = response_ok(body, file_type)
 
                         # Send the message
