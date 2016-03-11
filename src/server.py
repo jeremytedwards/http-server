@@ -45,13 +45,11 @@ def parse_request(request):
 def handle_listening(conn):
     buffer_length = 4096
     byte_msg = b''
-
     while True:
         part = conn.recv(buffer_length)
         byte_msg += part
         if len(part) < buffer_length:
             break
-
     return byte_msg
 
 
@@ -68,21 +66,16 @@ def resolve_uri(uri):
     returns a body and type based on uri as a tuple
     """
     os.chdir("../webroot")
-    body = os.open()
+    # body = os.open()
     file_type = None
     try:
-        filepath = os.open(uri)
+        filepath = os.open(uri, 'r')
         body = filepath.read()
         file_type = mimetypes.guess_type(uri)
+        return (body, file_type)
     except IOError:
         raise
-    return body, file_type
-
-
-    # If the requested resource cannot be found, raise an appropriate error
-
-
-    return (body, file_type)
+        # If the requested resource cannot be found, raise an appropriate error
 
 
 def send_response(conn, response):

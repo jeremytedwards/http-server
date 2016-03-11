@@ -2,13 +2,12 @@
 from __future__ import unicode_literals
 import pytest
 
+FAILED_MESSAGES = [
+    (u"SET / HTTP/1.1\r\nHost: localhost:5000", NameError),
+    (u"GET / HTTP/1.0\r\nHost: localhost:5000", TypeError),
+    (u"GET / HTTP/1.1\r\nNo Host", ValueError)
+]
 # the server must not be running for this test
-
-
-def test_response_template():
-    from server import response_template
-    response = response_template()
-    assert 'Content-length: \r\n\r\n' in response
 
 
 ERROR_RESPONSE = [
@@ -21,19 +20,19 @@ ERROR_RESPONSE = [
 ]
 
 
+SUCCESS_MESSAGE = [(u"GET / HTTP/1.1\r\nHost: localhost:5000", "/")]
+
+
+def test_response_template():
+    from server import response_template
+    response = response_template()
+    assert 'Content-length: \r\n\r\n' in response
+
+
 @pytest.mark.parametrize("error, response", ERROR_RESPONSE)
 def test_response_check(error, response):
     from server import response_check
     assert response_check(error) == response
-
-
-FAILED_MESSAGES = [
-    (u"SET / HTTP/1.1\r\nHost: localhost:5000", NameError),
-    (u"GET / HTTP/1.0\r\nHost: localhost:5000", TypeError),
-    (u"GET / HTTP/1.1\r\nNo Host", ValueError)
-]
-
-SUCCESS_MESSAGE = [(u"GET / HTTP/1.1\r\nHost: localhost:5000", "/")]
 
 
 @pytest.mark.parametrize("error, response", FAILED_MESSAGES)
@@ -47,3 +46,13 @@ def test_parse_request_failed(error, response):
 def test_parse_request_success(error, response):
     from server import parse_request
     assert parse_request(error) == response
+
+
+def test_handle_listening():
+    # this is only testable with a server-client connection
+    pass
+
+
+def test_response_ok():
+    from server import response_ok
+    assert response_ok('text/HTML')
