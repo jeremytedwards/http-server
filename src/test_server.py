@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 import pytest
+import sys
+import os
 
 
 FAILED_MESSAGES = [
@@ -70,6 +72,6 @@ def test_response_err(error, resp):
 @pytest.mark.parametrize("req, resp", URI_RESPONSE)
 def test_resolve_uri(req, resp):
     from server import resolve_uri
-    body_type = resolve_uri(req)
+    body_type = resolve_uri(req, '')
     assert resp[0] in body_type[0]
     assert resp[1] == body_type[1]
