@@ -7,8 +7,6 @@ FAILED_MESSAGES = [
     (u"GET / HTTP/1.0\r\nHost: localhost:5000", TypeError),
     (u"GET / HTTP/1.1\r\nNo Host", ValueError)
 ]
-# the server must not be running for this test
-
 
 ERROR_RESPONSE = [
     ("200", u"HTTP/1.1 200 OK\r\n"),
@@ -19,9 +17,16 @@ ERROR_RESPONSE = [
     ("505", u"HTTP/1.1 505 HTTP Version Not Supported\r\n"),
 ]
 
-
 SUCCESS_MESSAGE = [(u"GET / HTTP/1.1\r\nHost: localhost:5000", "/")]
 
+URI_RESPONSE = [
+    ("", (b"<!DOCTYPE html>", "")),
+    ("/a_web_page.html", (b"<!DOCTYPE html>", "text/html")),
+    ("/make_time.py", (b"#!/usr/bin/env python\n\n", "text/x-python")),
+    ("/sample.txt", (b"<h1>Code Fellows<h1>", "text/plain")),
+    ("/images/JPEG_example.jpg", (b"\xff\xd8\xff\xe0\x00\x10JFIF", "image/jpeg")),
+    ("/images/sample_1.png", (b"\x89PNG\r\n\x1a\n", "image/png")),
+]
 
 def test_response_template():
     from server import response_template
@@ -54,15 +59,18 @@ def test_response_ok():
     assert response[2] == 'Content-type: text/html; charset=utf-8\r\n'
 
 
-
 @pytest.mark.parametrize("error, resp", ERROR_RESPONSE)
 def test_response_err(error, resp):
     from server import response_err
     assert resp in response_err(error)
 
 
-def test_resolve_uri():
-    pass
+# @pytest.mark.parametrize("req, resp", URI_RESPONSE)
+# def test_resolve_uri(req, resp):
+#     from server import resolve_uri
+#     body_type = resolve_uri(req)
+#     assert resp[0] in body_type[0]
+#     assert resp[1] == body_type[1]
 
 
 def test_send_response():

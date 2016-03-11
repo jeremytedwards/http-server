@@ -91,7 +91,6 @@ def resolve_uri(uri):
     """
     returns a body and type based on uri as a tuple
     """
-    # os.chdir("webroot/")
     path_to_root = os.path.join('webroot', uri[1:])
     print("path to root: ", path_to_root)
     file_type = ""
@@ -109,8 +108,6 @@ def resolve_uri(uri):
     elif os.path.isdir(path_to_root):
         print("is a directory", path_to_root)
         return build_file_structre_html(path_to_root), file_type
-        # return sample_template, file_type
-        # show file system
     else:
         raise OSError
 
