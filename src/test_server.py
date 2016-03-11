@@ -48,12 +48,22 @@ def test_parse_request_success(error, response):
     assert parse_request(error) == response
 
 
-def test_handle_listening():
-    # this is only testable with a server-client connection
-    pass
-
-
 def test_response_ok():
     from server import response_ok
     response = response_ok('test text', 'text/html')
     assert response[2] == 'Content-type: text/html; charset=utf-8\r\n'
+
+
+
+@pytest.mark.parametrize("error, resp", ERROR_RESPONSE)
+def test_response_err(error, resp):
+    from server import response_err
+    assert resp in response_err(error)
+
+
+def test_resolve_uri():
+    pass
+
+
+def test_send_response():
+    pass
