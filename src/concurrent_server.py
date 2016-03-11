@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
 import socket
@@ -46,7 +45,7 @@ def parse_request(request):
     request_list = split_request[0].split(' ')
     if request_list[0] == 'GET':
         if request_list[2] == 'HTTP/1.1':
-            if 'Host: localhost:' in split_request[1]:
+            if 'Host: 127.0.0.1:' in split_request[1]:
                 return request_list[1]
             else:
                 raise ValueError
@@ -119,49 +118,32 @@ def send_response(conn, response):
             conn.send(c)
 
 
-def server():
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP,)
-    print("\nserver: ", server_socket)
-
-    address = ('127.0.0.1', 5001)
-    server_socket.bind(address)
-    print("\nserver: ", server_socket)
-
-    server_socket.listen(1)
-    print("\nlistening...")
-
-    conn = None
-
+def server(conn, address):
     try:
         while True:
-            print('Back to listening for request')
-            conn, addr = server_socket.accept()
+            # listen on socket
+            client_request = handle_listening(conn)
+            print(client_request)
             try:
-                while True:
-                    # listen on socket
-                    client_request = handle_listening(conn)
-                    print(client_request)
-                    try:
-                        uri = parse_request(client_request)
-                        print('parsed uri: ', uri)
-                    except ValueError:
-                        client_response = response_err("400")
-                    except TypeError:
-                        client_response = response_err("505")
-                    except NameError:
-                        client_response = response_err("405")
-                    try:
-                        body, file_type = resolve_uri(uri)
-                        print("body :", body)
-                        print("file_type :", file_type)
-                        client_response = response_ok(body, file_type)
-                    except OSError:
-                        client_response = response_err("404")
-                    # Send the message
-                    send_response(conn, client_response)
-                    break
-            finally:
-                conn.close()
+                uri = parse_request(client_request)
+                print('parsed uri: ', uri)
+            except ValueError:
+                client_response = response_err("400")
+            except TypeError:
+                client_response = response_err("505")
+            except NameError:
+                client_response = response_err("405")
+            try:
+                body, file_type = resolve_uri(uri)
+                print("body :", body)
+                print("file_type :", file_type)
+                client_response = response_ok(body, file_type)
+            except OSError:
+                client_response = response_err("404")
+            # Send the message
+            send_response(conn, client_response)
+            conn.close()
+            break
     except KeyboardInterrupt:
         if conn is not None:
             conn.close()
@@ -172,4 +154,9 @@ def server():
 
 
 if __name__ == '__main__':
-    server()
+    from gevent.server import StreamServer
+    from gevent.monkey import patch_all
+    patch_all()
+    server = StreamServer(('127.0.0.1', 5000), server)
+    print('Starting echo server on port 5000')
+    server.serve_forever()
