@@ -18,9 +18,14 @@ sample_template = (
 )
 def build_file_structre_html(src):
     return_value = sample_template
+    body = "<ul>"
     for item in os.listdir(src):
-        body = "<a href={item}/>{item}</a><br />".format(item)
-    print(return_value.format(body))
+        print(src)
+        if os.path.isdir(os.path.join(src, item)):
+            body += "<a href=\"{}/\"><li>{}</li></a>".format(src, src)
+        else:
+            body += "<a href=\"{}\"><li>{}</li></a>".format(src, src)
+    body += "</ul>"
     return return_value.format(body)
 
 
@@ -29,7 +34,7 @@ def response_template():
             u"" + str("Date: " + email.utils.formatdate(usegmt=True) + "\r\n"),
             u"Content-type: text/html; charset=utf-8\r\n",
             u"Content-length: \r\n\r\n",
-            b"Body: "]
+            u"Body: "]
 
 
 def response_check(error):
@@ -75,7 +80,7 @@ def response_ok(body, type):
     response = response_template()
     response[0] = response_check("200")
     response[2] = u"Content-type: " + type + "; charset=utf-8\r\n"
-    response[4] = body
+    response[4] = body.decode('utf-8')
     return response
 
 
@@ -83,11 +88,12 @@ def resolve_uri(uri):
     """
     returns a body and type based on uri as a tuple
     """
-    os.chdir("webroot")
-    path_to_root = os.path.join(os.getcwd(), uri)
+    # os.chdir("webroot/")
+    path_to_root = os.path.join('webroot', uri[1:])
     print("path to root: ", path_to_root)
     file_type = ""
     try:
+        print(os.path.isfile(path_to_root))
         if os.path.isfile(path_to_root):
             print("is a file")
             filepath = io.open(path_to_root, 'rb')
@@ -95,15 +101,17 @@ def resolve_uri(uri):
             body = filepath.read()
             print("body", body)
             file_type = mimetypes.guess_type(uri)
-            print("file_type :", file_type)
-            return body, file_type
-        elif os.path.isdir(uri):
-            print("is a directory")
+            print("file_type :", file_type[0])
+            return body, file_type[0]
+        # elif os.path.isdir(uri):
+            # print("is a directory")
             # return build_file_structre_html(uri), file_type
-            return sample_template, file_type
+            # return sample_template, file_type
             # show file system
+        else:
+            print('not a file, apparently')
     except OSError:
-        pass
+        raise OSError
         # throw 404
 
 
@@ -116,7 +124,7 @@ def server():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP,)
     print("\nserver: ", server_socket)
 
-    address = ('127.0.0.1', 5001)
+    address = ('127.0.0.1', 5000)
     server_socket.bind(address)
     print("\nserver: ", server_socket)
 
