@@ -29,6 +29,7 @@ URI_RESPONSE = [
     (u"/images/sample_1.png", (b"\x89PNG\r\n\x1a\n", "image/png")),
 ]
 
+
 def test_response_template():
     from server import response_template
     response = response_template()
@@ -72,7 +73,3 @@ def test_resolve_uri(req, resp):
     body_type = resolve_uri(req)
     assert resp[0] in body_type[0]
     assert resp[1] == body_type[1]
-
-
-def test_send_response():
-    pass # Print a function
