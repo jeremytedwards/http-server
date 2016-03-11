@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 import pytest
 
+
 FAILED_MESSAGES = [
     (u"SET / HTTP/1.1\r\nHost: localhost:5000", NameError),
     (u"GET / HTTP/1.0\r\nHost: localhost:5000", TypeError),
@@ -20,12 +21,12 @@ ERROR_RESPONSE = [
 SUCCESS_MESSAGE = [(u"GET / HTTP/1.1\r\nHost: localhost:5000", "/")]
 
 URI_RESPONSE = [
-    ("", (b"<!DOCTYPE html>", "")),
-    ("/a_web_page.html", (b"<!DOCTYPE html>", "text/html")),
-    ("/make_time.py", (b"#!/usr/bin/env python\n\n", "text/x-python")),
-    ("/sample.txt", (b"<h1>Code Fellows<h1>", "text/plain")),
-    ("/images/JPEG_example.jpg", (b"\xff\xd8\xff\xe0\x00\x10JFIF", "image/jpeg")),
-    ("/images/sample_1.png", (b"\x89PNG\r\n\x1a\n", "image/png")),
+    (u"/", (b"<!DOCTYPE html>", "")),
+    (u"/a_web_page.html", (b"<!DOCTYPE html>", "text/html")),
+    (u"/make_time.py", (b"#!/usr/bin/env python\n\n", "text/x-python")),
+    (u"/sample.txt", (b"<h1>Code Fellows<h1>", "text/plain")),
+    (u"/images/JPEG_example.jpg", (b"\xff\xd8\xff\xe0\x00\x10JFIF", "image/jpeg")),
+    (u"/images/sample_1.png", (b"\x89PNG\r\n\x1a\n", "image/png")),
 ]
 
 def test_response_template():
@@ -65,13 +66,14 @@ def test_response_err(error, resp):
     assert resp in response_err(error)
 
 
-# @pytest.mark.parametrize("req, resp", URI_RESPONSE)
-# def test_resolve_uri(req, resp):
-#     from server import resolve_uri
-#     body_type = resolve_uri(req)
-#     assert resp[0] in body_type[0]
-#     assert resp[1] == body_type[1]
+@pytest.mark.parametrize("req, resp", URI_RESPONSE)
+def test_resolve_uri(req, resp):
+    from server import resolve_uri
+    body_type = resolve_uri(req)
+    assert resp[0] in body_type[0]
+    assert resp[1] == body_type[1]
 
 
 def test_send_response():
+    # Print a function
     pass

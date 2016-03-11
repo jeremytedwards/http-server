@@ -9,7 +9,6 @@ import os
 
 
 def build_file_structre_html(directory):
-
     print(directory)
     body = "<!DOCTYPE html>\r\n<html>\r\n<ul>\r\n<body>\r\n<h1>Code Fellows</h1>\r\n"
     for item in os.listdir(directory):
@@ -63,6 +62,7 @@ def parse_request(request):
 def handle_listening(conn):
     buffer_length = 4096
     byte_msg = b''
+    decoded_msg = ""
     while True:
         part = conn.recv(buffer_length)
         byte_msg += part
@@ -72,18 +72,18 @@ def handle_listening(conn):
     return decoded_msg
 
 
-def response_ok(body, type):
+def response_ok(body, req_type):
     response = response_template()
     response[0] = response_check("200")
-    response[2] = u"Content-type: " + type + "; charset=utf-8\r\n"
+    response[2] = u"Content-type: " + req_type + "; charset=utf-8\r\n"
     response[4] = body
     return response
 
 
-def response_err(type):
+def response_err(req_type):
     response = response_template()
-    response[0] = response_check(type)
-    response[4] = response_check(type)
+    response[0] = response_check(req_type)
+    response[4] = response_check(req_type)
     return response
 
 
@@ -142,10 +142,9 @@ def server():
                     # listen on socket
                     client_request = handle_listening(conn)
                     print(client_request)
-                    # TODO: uri could be an error handle it.
                     try:
                         uri = parse_request(client_request)
-                        print('uri within client request', uri)
+                        print('parsed uri: ', uri)
                     except ValueError:
                         client_response = response_err("400")
                     except TypeError:
