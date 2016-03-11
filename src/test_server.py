@@ -55,4 +55,5 @@ def test_handle_listening():
 
 def test_response_ok():
     from server import response_ok
-    assert response_ok('text/HTML')
+    response = response_ok('test text', 'text/html')
+    assert response[2] == 'Content-type: text/html; charset=utf-8\r\n'

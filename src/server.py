@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import socket
 import email.utils
 import mimetypes
+import io
 import os
 
 
@@ -49,8 +50,9 @@ def handle_listening(conn):
         part = conn.recv(buffer_length)
         byte_msg += part
         if len(part) < buffer_length:
+            decoded_msg = byte_msg.decode('utf-8')
             break
-    return byte_msg
+    return decoded_msg
 
 
 def response_ok(body, type):
@@ -65,17 +67,23 @@ def resolve_uri(uri):
     """
     returns a body and type based on uri as a tuple
     """
-    os.chdir("../webroot")
+    os.chdir("webroot")
+    path_to_root = os.path.join(os.getcwd(), uri)
+    # path_to_root = str('webroot' + uri)
     # body = os.open()
     file_type = None
     try:
-        filepath = os.open(uri, 'r')
-        body = filepath.read()
-        file_type = mimetypes.guess_type(uri)
-        return (body, file_type)
-    except IOError:
-        raise
-        # If the requested resource cannot be found, raise an appropriate error
+        if os.path.isfile(uri):
+            filepath = io.open(path_to_root, 'rb')
+            body = filepath.read()
+            file_type = mimetypes.guess_type(uri)
+            return (body, file_type)
+        elif os.path.isdir(uri):
+            pass
+            # show file system
+    except OSError:
+        pass
+        # throw 404
 
 
 def send_response(conn, response):
@@ -83,13 +91,11 @@ def send_response(conn, response):
         conn.send(c.encode('utf-8'))
 
 
-
-
 def server():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP,)
     print("\nserver: ", server_socket)
 
-    address = ('127.0.0.1', 5001)
+    address = ('127.0.0.1', 5000)
     server_socket.bind(address)
     print("\nserver: ", server_socket)
 
@@ -101,30 +107,32 @@ def server():
     try:
         while True:
             conn, addr = server_socket.accept()
+            try:
+                while True:
+                    # listen on socket
+                    client_request = handle_listening(conn)
+                    if client_request:
 
-            while True:
-                # listen on socket
-                client_request = handle_listening(conn)
+                        uri = parse_request(client_request)
 
-                uri = parse_request(client_request)
+                        body, file_type = resolve_uri(uri)
 
-                body, type = resolve_uri(uri)
+                        client_response = response_ok(body, file_type)
 
-                client_response = build_the_message(body, type)
-
-                # Send the message
-                send_response(conn, client_response)
-
-                # Stop listening
-                break
-            conn.close()
-        except KeyboardInterrupt:
-            if conn is not None:
+                        # Send the message
+                        send_response(conn, client_response)
+                    else:
+                        conn.shutdown(socket.SHUT_RDWR)
+                        break
+            finally:
                 conn.close()
-            print('connection closed')
-        finally:
-            server_socket.close()
-            print('server closed')
+    except KeyboardInterrupt:
+        if conn is not None:
+            conn.close()
+        print('connection closed')
+    finally:
+        server_socket.close()
+        print('server closed')
 
 
 if __name__ == '__main__':
