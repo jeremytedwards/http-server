@@ -16,6 +16,8 @@ sample_template = (
     "</body>"
     "</html>"
 )
+
+
 def build_file_structre_html(src):
     return_value = sample_template
     body = "<ul>"
@@ -84,6 +86,13 @@ def response_ok(body, type):
     return response
 
 
+def response_err(type):
+    response = response_template()
+    response[0] = response_check(type)
+    response[4] = response_check(type)
+    return response
+
+
 def resolve_uri(uri):
     """
     returns a body and type based on uri as a tuple
@@ -92,27 +101,24 @@ def resolve_uri(uri):
     path_to_root = os.path.join('webroot', uri[1:])
     print("path to root: ", path_to_root)
     file_type = ""
-    try:
-        print(os.path.isfile(path_to_root))
-        if os.path.isfile(path_to_root):
-            print("is a file")
-            filepath = io.open(path_to_root, 'rb')
-            print("filepath :", filepath)
-            body = filepath.read()
-            print("body", body)
-            file_type = mimetypes.guess_type(uri)
-            print("file_type :", file_type[0])
-            return body, file_type[0]
-        # elif os.path.isdir(uri):
-            # print("is a directory")
-            # return build_file_structre_html(uri), file_type
-            # return sample_template, file_type
-            # show file system
-        else:
-            print('not a file, apparently')
-    except OSError:
+    print(os.path.isfile(path_to_root))
+    if os.path.isfile(path_to_root):
+        print("is a file")
+        filepath = io.open(path_to_root, 'rb')
+        print("filepath :", filepath)
+        body = filepath.read()
+        print("body", body)
+        file_type = mimetypes.guess_type(uri)
+        print("file_type :", file_type[0])
+        filepath.close()
+        return body, file_type[0]
+    # elif os.path.isdir(uri):
+        # print("is a directory")
+        # return build_file_structre_html(uri), file_type
+        # return sample_template, file_type
+        # show file system
+    else:
         raise OSError
-        # throw 404
 
 
 def send_response(conn, response):
@@ -135,33 +141,39 @@ def server():
 
     try:
         while True:
+            print('Back to listening for request')
             conn, addr = server_socket.accept()
             try:
                 while True:
                     # listen on socket
                     client_request = handle_listening(conn)
-                    if client_request:
-                        # TODO: uri could be an error handle it.
-                        uri = parse_request(client_request)
+                    print(client_request)
+                    # TODO: uri could be an error handle it.
+                    # try:
+                    uri = parse_request(client_request)
+                    print('uri within client request', uri)
+                    # except
+                    # except
+                    # except
+                    try:
                         body, file_type = resolve_uri(uri)
                         print("body :", body)
                         print("file_type :", file_type)
                         client_response = response_ok(body, file_type)
-
-                        # Send the message
-                        send_response(conn, client_response)
-                    else:
-                        conn.shutdown(socket.SHUT_RDWR)
-                        break
+                    except OSError:
+                        client_response = response_err("404")
+                    # Send the message
+                    send_response(conn, client_response)
+                    break
             finally:
                 conn.close()
     except KeyboardInterrupt:
         if conn is not None:
             conn.close()
         print('connection closed')
-    finally:
-        server_socket.close()
-        print('server closed')
+    # finally:
+    #     server_socket.close()
+    #     print('server closed')
 
 
 if __name__ == '__main__':
