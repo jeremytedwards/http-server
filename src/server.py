@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from fs.osfs import OSFS
 
 import socket
 import email.utils
@@ -25,6 +26,12 @@ def response_check(error):
     }
     return response_dict[error]
 
+
+def resolve_uri(uri):
+    # returns a body and type based on uri as a tuple
+    # if dir, return a simple HTML listing of that directory as the body
+    # If the resource identified by the URI is a file, return the contents of the file as the body
+    # If the requested resource cannot be found, raise an appropriate error
 
 # >>>>>Sample Request for Reference
 # GET / HTTP/1.1
