@@ -2,11 +2,6 @@
 from __future__ import unicode_literals
 import pytest
 
-# import sys
-# import os
-# myPath = os.path.dirname(os.path.abspath(__file__))
-# sys.path.insert(0, myPath + 'src/')
-
 
 FAILED_MESSAGES = [
     (u"SET / HTTP/1.1\r\nHost: localhost:5000", NameError),
@@ -73,7 +68,6 @@ def test_response_err(error, resp):
 
 @pytest.mark.parametrize("req, resp", URI_RESPONSE)
 def test_resolve_uri(req, resp):
-    import os
     from server import resolve_uri
     body_type = resolve_uri(req)
     assert resp[0] in body_type[0]
