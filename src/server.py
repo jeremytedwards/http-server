@@ -7,28 +7,19 @@ import mimetypes
 import io
 import os
 
-sample_template = (
-    "<!DOCTYPE html>"
-    "<html>"
-    "<body>"
-    "<h1>Code Fellows</h1>"
-    "{body}"
-    "</body>"
-    "</html>"
-)
 
+def build_file_structre_html(directory):
 
-def build_file_structre_html(src):
-    return_value = sample_template
-    body = "<ul>"
-    for item in os.listdir(src):
-        print(src)
-        if os.path.isdir(os.path.join(src, item)):
-            body += "<a href=\"{}/\"><li>{}</li></a>".format(src, src)
+    print(directory)
+    body = "<!DOCTYPE html>\r\n<html>\r\n<ul>\r\n<body>\r\n<h1>Code Fellows</h1>\r\n"
+    for item in os.listdir(directory):
+        print(item)
+        if os.path.isdir(os.path.join(directory, item)):
+            body += "<li><a href=\"{}/\">{}</a></li>\r\n".format(item, item)
         else:
-            body += "<a href=\"{}\"><li>{}</li></a>".format(src, src)
-    body += "</ul>"
-    return return_value.format(body)
+            body += "<li><a href=\"{}\">{}</a></li>\r\n".format(item, item)
+    body += "</ul>\r\n</body>\r\n</html>"
+    return body
 
 
 def response_template():
@@ -60,10 +51,13 @@ def parse_request(request):
                 return request_list[1]
             else:
                 raise ValueError
+                # 400
         else:
             raise TypeError
+            # 505
     else:
         raise NameError
+        # 405
 
 
 def handle_listening(conn):
@@ -82,7 +76,7 @@ def response_ok(body, type):
     response = response_template()
     response[0] = response_check("200")
     response[2] = u"Content-type: " + type + "; charset=utf-8\r\n"
-    response[4] = body.decode('utf-8')
+    response[4] = body
     return response
 
 
@@ -112,9 +106,9 @@ def resolve_uri(uri):
         print("file_type :", file_type[0])
         filepath.close()
         return body, file_type[0]
-    # elif os.path.isdir(uri):
-        # print("is a directory")
-        # return build_file_structre_html(uri), file_type
+    elif os.path.isdir(path_to_root):
+        print("is a directory", path_to_root)
+        return build_file_structre_html(path_to_root), file_type
         # return sample_template, file_type
         # show file system
     else:
@@ -123,7 +117,10 @@ def resolve_uri(uri):
 
 def send_response(conn, response):
     for c in response:
-        conn.send(c.encode('utf-8'))
+        if isinstance(c, str):
+            conn.send(c.encode('utf-8'))
+        else:
+            conn.send(c)
 
 
 def server():
@@ -149,12 +146,15 @@ def server():
                     client_request = handle_listening(conn)
                     print(client_request)
                     # TODO: uri could be an error handle it.
-                    # try:
-                    uri = parse_request(client_request)
-                    print('uri within client request', uri)
-                    # except
-                    # except
-                    # except
+                    try:
+                        uri = parse_request(client_request)
+                        print('uri within client request', uri)
+                    except ValueError:
+                        client_response = response_err("400")
+                    except TypeError:
+                        client_response = response_err("505")
+                    except NameError:
+                        client_response = response_err("405")
                     try:
                         body, file_type = resolve_uri(uri)
                         print("body :", body)
