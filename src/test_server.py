@@ -2,6 +2,11 @@
 from __future__ import unicode_literals
 import pytest
 
+# import sys
+# import os
+# myPath = os.path.dirname(os.path.abspath(__file__))
+# sys.path.insert(0, myPath + 'src/')
+
 
 FAILED_MESSAGES = [
     (u"SET / HTTP/1.1\r\nHost: localhost:5000", NameError),
@@ -21,10 +26,10 @@ ERROR_RESPONSE = [
 SUCCESS_MESSAGE = [(u"GET / HTTP/1.1\r\nHost: localhost:5000", "/")]
 
 URI_RESPONSE = [
-    (u"/", (b"<!DOCTYPE html>", "")),
+    (u"/", ("<!DOCTYPE html>", "")),
     (u"/a_web_page.html", (b"<!DOCTYPE html>", "text/html")),
     (u"/make_time.py", (b"#!/usr/bin/env python\n\n", "text/x-python")),
-    (u"/sample.txt", (b"<h1>Code Fellows<h1>", "text/plain")),
+    (u"/sample.txt", (b"This is a very simple text file", "text/plain")),
     (u"/images/JPEG_example.jpg", (b"\xff\xd8\xff\xe0\x00\x10JFIF", "image/jpeg")),
     (u"/images/sample_1.png", (b"\x89PNG\r\n\x1a\n", "image/png")),
 ]
@@ -68,6 +73,7 @@ def test_response_err(error, resp):
 
 @pytest.mark.parametrize("req, resp", URI_RESPONSE)
 def test_resolve_uri(req, resp):
+    import os
     from server import resolve_uri
     body_type = resolve_uri(req)
     assert resp[0] in body_type[0]
@@ -75,5 +81,4 @@ def test_resolve_uri(req, resp):
 
 
 def test_send_response():
-    # Print a function
-    pass
+    pass # Print a function

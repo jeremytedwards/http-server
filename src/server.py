@@ -94,7 +94,6 @@ def resolve_uri(uri):
     path_to_root = os.path.join('webroot', uri[1:])
     print("path to root: ", path_to_root)
     file_type = ""
-    print(os.path.isfile(path_to_root))
     if os.path.isfile(path_to_root):
         print("is a file")
         filepath = io.open(path_to_root, 'rb')
