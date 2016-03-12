@@ -22,11 +22,11 @@ def client(message=test_message):
     while True:
         part = client_socket.recv(buffer_length)
         buffered_message += part.decode('utf-8')
-        if len(part) < buffer_length:
+        if len(part) == 0:
             break
     print(buffered_message)
     client_socket.close()
-    return(buffered_message)
+    return buffered_message
 
 
 if __name__ == '__main__':
